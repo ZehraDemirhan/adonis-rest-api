@@ -19,6 +19,9 @@ export default class extends BaseSchema {
 			// Phone number of the employee
 			table.string('phone');
 
+			// Company of the employee
+			table.integer('company_id').unsigned().references('id').inTable('companies').onDelete('CASCADE')
+			
 			table.timestamp('created_at')
 			table.timestamp('updated_at')
 		})

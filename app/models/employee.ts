@@ -16,6 +16,10 @@ export default class Employee extends BaseModel {
 	// Email of the employee
 	@column()
 	public email: string | undefined;
+
+	// Company of the employee
+	@column()
+	public company_id: number | undefined;
 	
 	// Phone number of the employee
 	@column()
