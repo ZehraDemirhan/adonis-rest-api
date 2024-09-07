@@ -40,5 +40,4 @@ export default class CompaniesController {
 		return company.delete();
 		
 	}
-	
 }

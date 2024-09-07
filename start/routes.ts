@@ -17,6 +17,7 @@ router.get('/', async () => {
 
 const CompaniesController = () => import('#controllers/companies_controller')
 const EmployeesController = () => import('#controllers/employees_controller')
+const UsersController = () => import('#controllers/users_controller')
 
 router.get('/companies', [CompaniesController, 'index'])
 router.post('/companies', [CompaniesController, 'store'])
@@ -29,3 +30,5 @@ router.post('/employees', [EmployeesController, 'store'])
 router.get('/employees/:id', [EmployeesController, 'show'])
 router.put('/employees/:id', [EmployeesController, 'update'])
 router.delete('/employees/:id', [EmployeesController, 'destroy'])
+
+router.get('/users/admins', [UsersController, 'getAdmins'])

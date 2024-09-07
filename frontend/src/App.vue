@@ -1,47 +1,99 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+<script>
+	import axios from 'axios';
+	import CompanyTable from './components/CompanyTable.vue';
+	import EmployeeTable from './components/EmployeeTable.vue';
+
+	export default {
+		data() {
+			return {
+				view: 'companies',
+				admin: null,
+			};
+		},
+		components: {
+			CompanyTable,
+			EmployeeTable,
+		},
+		mounted() {
+			this.fetchAdminData();
+		},
+		methods: {
+			async fetchAdminData() {
+				try {
+					const response = await axios.get('http://localhost:3333/users/admins');
+					// Right now we only have one admin user
+					this.admin = response.data[0];
+				} catch (error) {
+					console.error('Failed to fetch admin data:', error);
+				}
+			},
+		},
+	};
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+	<div class="d-flex">
+		<div class="sidebar bg-dark border-right text-white">
+			<div class="admin-info p-3 text-center">
+				<img v-if="admin" :src="`http://localhost:3333/avatar/${admin.profilePicture}`" alt="Admin Avatar" class="rounded-circle mb-3" style="width: 100px; height: 100px;" />
+				<h2 v-if="admin">{{ admin.fullName }}</h2>
+				<small v-if="admin">{{ admin.email }}</small>
+				<p v-else>Loading admin data...</p>
+			</div>
+			<ul class="nav flex-column p-3 custom-height">
+				<li class="nav-item mb-3">
+					<a class="nav-link d-flex align-items-center text-white" @click="view = 'companies'">
+						<i class="bi bi-building me-2"></i>
+						<span>Company List</span>
+					</a>
+				</li>
+				<li class="nav-item mb-3">
+					<a class="nav-link d-flex align-items-center text-white" @click="view = 'employees'">
+						<i class="bi bi-people-fill me-2"></i>
+						<span>Employee List</span>
+					</a>
+				</li>
+				<li class="nav-item mt-auto">
+					<a class="nav-link d-flex align-items-center text-white" @click="logout">
+						<i class="bi bi-box-arrow-right me-2"></i>
+						<span>Logout</span>
+					</a>
+				</li>
+			</ul>
+		</div>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+		<!-- Main content -->
+		<div class="content p-4 w-100">
+			<div v-if="view === 'companies'">
+				<CompanyTable />
+			</div>
+			<div v-if="view === 'employees'">
+				<EmployeeTable />
+			</div>
+		</div>
+	</div>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-}
+	.sidebar {
+		width: 250px;
+		height: 100vh;
+		position: fixed;
+		top: 0;
+		left: 0;
+		background-color: #f8f9fa;
+	}
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+	.content {
+		margin-left: 250px;
+		width: calc(100% - 250px);
+	}
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
+	.nav-link {
+		cursor: pointer;
+	}
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
+	.custom-height {
+		height: 78%;
+	}
 </style>
