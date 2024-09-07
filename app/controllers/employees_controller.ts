@@ -1,8 +1,10 @@
-import Employee from "#models/employee";
 import { HttpContext } from "@adonisjs/core/http";
 
+import { createEmployeeValidator, updateEmployeeValidator } from "#validators/employee";
+import Employee from "#models/employee";
+
 export default class EmployeesController {
-	public async index({ request, response }: HttpContext) {
+	public async index({ request }: HttpContext) {
 		// Paginate the employees by 15
 		const page = request.input('page', 1);
 		const employees = await Employee.query().paginate(page, 15);
@@ -11,9 +13,10 @@ export default class EmployeesController {
 
 	public async store({ request, response }: HttpContext) {
 		const body = request.body();
-		const employee = await Employee.create(body); // Create and save
+		const validatedData = await createEmployeeValidator.validate(body);
+		const employee = await Employee.create(validatedData); // Create and save
 		response.status(201);
-		return employee;
+		return employee
 	}
 			
 	public async show({ params }: HttpContext) {
@@ -22,8 +25,9 @@ export default class EmployeesController {
 
 	public async update({ params, request }: HttpContext) {
 		const body = request.body();
+		const validatedData = await updateEmployeeValidator.validate(body);
 		const employee = await Employee.findOrFail(params.id);
-		employee.merge(body);
+		employee.merge(validatedData);
 		await employee.save();
 		return employee;
 	}

@@ -1,5 +1,6 @@
 import { HttpContext } from "@adonisjs/core/http";
 
+import { createCompanyValidator, updateCompanyValidator } from "#validators/company";
 import Company from "#models/company";
 
 export default class CompaniesController {
@@ -12,7 +13,8 @@ export default class CompaniesController {
 
 	public async store({ request, response }: HttpContext) {
 		const body = request.body();
-		const company = await Company.create(body); // Create and save
+		const validatedData = await createCompanyValidator.validate(body);
+		const company = await Company.create(validatedData); // Create and save
 		response.status(201);
 		return company;
 	}
@@ -23,8 +25,9 @@ export default class CompaniesController {
 
 	public async update({ params, request }: HttpContext) {
 		const body = request.body();
+		const validatedData = await updateCompanyValidator.validate(body);
 		const company = await Company.findOrFail(params.id);
-		company.merge(body);
+		company.merge(validatedData);
 		await company.save();
 		return company;
 	}
