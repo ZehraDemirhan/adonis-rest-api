@@ -20,7 +20,7 @@ export default class extends BaseSeeder {
 			// Create a folder in the projects app folder to store the logos
 			const __dirname = import.meta.dirname;
 
-			const dirPath = path.join(__dirname, '../../app/uploads/logos')
+			const dirPath = path.join(__dirname, '../../public/logos')
 
 			await promisify(fs.mkdir)(dirPath, { recursive: true })
 
@@ -38,7 +38,7 @@ export default class extends BaseSeeder {
 			await Company.create({
 				name: faker.company.name(),
 				email: faker.internet.email(),
-				logo: `/uploads/logos/${fileName}`, // Store the path relative to the public directory
+				logo: `${fileName}`, // Store the path relative to the public directory
 				website: faker.internet.url(),
 			})
 		}

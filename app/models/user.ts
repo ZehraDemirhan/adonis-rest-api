@@ -26,6 +26,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
 	@column()
 	declare is_admin: boolean
 
+	@column()
+	declare profile_picture: string | null
+
 	@column.dateTime({ autoCreate: true })
 	declare createdAt: DateTime
 
