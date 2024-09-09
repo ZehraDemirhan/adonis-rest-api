@@ -1,7 +1,11 @@
 import Company from "#models/company";
 
 export default class CompanyRepository {
-	public async paginate(page: number, perPage: number) {
+	public async paginate(page: number | null, perPage: number) {
+		// If page is not provided just return all companies only with their name and id fields
+		if (!page) {
+			return Company.query().select('id', 'name');
+		}
 		return Company.query()
 			.orderBy('created_at', 'desc')
 			.paginate(page, perPage);

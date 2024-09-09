@@ -4,7 +4,7 @@ import CompanyRepository from '../repositories/company_repository.js';
 export default class CompanyService {
 	private companyRepo = new CompanyRepository();
 
-	public async getCompanies(page: number) {
+	public async getCompanies(page: number | null) {
 		return this.companyRepo.paginate(page, 15);
 	}
 

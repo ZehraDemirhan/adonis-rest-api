@@ -6,7 +6,7 @@ export default class CompaniesController {
 	private companyService = new CompanyService();
 
 	public async index({ request }: HttpContext) {
-		const page = request.input('page') || 1;
+		const page = request.input('page') || null;
 		return this.companyService.getCompanies(page);
 	}
 
