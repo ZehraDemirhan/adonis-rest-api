@@ -41,7 +41,7 @@
 </script>
 
 <template>
-	<div class="d-flex">
+	<div class="d-flex position-relative">
 		<div class="sidebar bg-dark border-right text-white">
 			<div class="admin-info p-3 text-center">
 				<img v-if="admin" :src="`http://localhost:3333/avatar/${admin.profilePicture}`" alt="Admin Avatar" class="rounded-circle mb-3" style="width: 100px; height: 100px;" />
@@ -49,7 +49,7 @@
 				<small v-if="admin">{{ admin.email }}</small>
 				<p v-else>Loading admin data...</p>
 			</div>
-			<ul class="nav flex-column p-3 custom-height">
+			<ul class="nav flex-column p-3">
 				<li class="nav-item mb-3 list-item-hover" :class="{'active-item': view == 'companies'}">
 					<router-link class="nav-link d-flex align-items-center text-white" @click="view = 'companies'" to="/companies">
 						<i class="bi bi-building me-2"></i>
@@ -62,7 +62,7 @@
 						<span>Employee Table</span>
 					</router-link>
 				</li>
-				<li class="nav-item mt-auto list-item-hover">
+				<li class="nav-item mt-auto list-item-hover position-absolute">
 					<a class="nav-link d-flex align-items-center text-white" @click="logout">
 						<i class="bi bi-box-arrow-right me-2"></i>
 						<span>Logout</span>
@@ -96,8 +96,8 @@
 		cursor: pointer;
 	}
 
-	.custom-height {
-		height: calc(100vh - 210px);
+	.position-relative {
+		position: relative;
 	}
 
 	.list-item-hover:hover {
@@ -110,5 +110,10 @@
 
 	.active-item {
 		background-color: #343a40;
+	}
+
+	.position-absolute {
+		position: absolute;
+		bottom: 15px;
 	}
 </style>

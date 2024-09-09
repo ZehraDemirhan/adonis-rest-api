@@ -96,7 +96,7 @@
 								<input type="text" class="form-control" id="logo" v-model="logo" required />
 							</div>
 							
-							<button type="submit" class="btn btn-success" :class="{ disabled: !submitting }">Submit</button>
+							<button type="submit" class="btn btn-success" :class="{ disabled: submitting }">Submit</button>
 						</form>
 					</div>
 				</div>
@@ -131,11 +131,11 @@ export default {
 		async fetchCompanies(page = this.page) {
 			try {
 				console.log("page", page);
-				const response = await HttpClientAuth.get(`http://localhost:3333/companies?page=${page}`);
+				const response = await HttpClientAuth.get(`/companies?page=${page}`);
 				this.companies = response.data.data;
 				this.page = page;
 				this.totalPages = Math.ceil(response.data.meta.total / 15); // As we return 15 items per page
-				console.log(this.companies);
+
 				// Update the query parameter with the current page
 				this.$router.push({ path: '/companies', query: { page } });
 			} catch (error) {
@@ -153,7 +153,7 @@ export default {
 					website: this.website,
 					logo: this.logo,
 				};
-				await HttpClientAuth.post('http://localhost:3333/companies', newCompany);
+				await HttpClientAuth.post('/companies', newCompany);
 				this.submitting = false;
 				this.name = '';
 				this.email = '';

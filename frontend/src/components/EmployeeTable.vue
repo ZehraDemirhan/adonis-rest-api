@@ -192,7 +192,7 @@ export default {
 	methods: {
 		async fetchEmployees(page = this.page) {
 			try {
-				const response = await HttpClientAuth.get(`http://localhost:3333/employees?page=${page}`);
+				const response = await HttpClientAuth.get(`/employees?page=${page}`);
 				this.employees = response.data.data;
 				this.page = page;
 				this.totalPages = Math.ceil(response.data.meta.total / 15);
@@ -205,7 +205,7 @@ export default {
 		},
 		async getAllCompanies() {
 			try {
-				const response = await HttpClientAuth.get('http://localhost:3333/companies');
+				const response = await HttpClientAuth.get('/companies');
 
 				this.allCompanies = response.data;
 
@@ -225,7 +225,7 @@ export default {
 				});
 
 				if (result.isConfirmed) {
-					await Http.delete(`http://localhost:3333/employees/${id}`);
+					await Http.delete(`/employees/${id}`);
 					this.fetchEmployees();
 					Swal.fire('Deleted!', 'Employee has been deleted.', 'success');
 				}
@@ -266,7 +266,7 @@ export default {
 					company_id: this.companyId,
 				};
 
-				await HttpClientAuth.put(`http://localhost:3333/employees/${this.employeeId}`, employeeData);
+				await HttpClientAuth.put(`/employees/${this.employeeId}`, employeeData);
 				this.submitting = false;
 
 				// Update the current employee in the employees array
