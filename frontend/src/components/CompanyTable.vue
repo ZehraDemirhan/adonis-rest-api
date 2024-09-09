@@ -57,7 +57,7 @@
 			</nav>
 		</div>
 
-		<div v-if="errors.length > 0" id="alert" class="alert-position">
+		<div v-if="errors.length > 0" id="alert" class="alert-box">
 			<div v-for="(error, index) in errors" :key="index" class="alert alert-danger alert-dismissible fade show" role="alert">
 				{{ error.message }}
 				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -130,10 +130,10 @@ export default {
 	methods: {
 		async fetchCompanies(page = this.page) {
 			try {
-				console.log("page", page);
 				const response = await HttpClientAuth.get(`/companies?page=${page}`);
 				this.companies = response.data.data;
 				this.page = page;
+
 				this.totalPages = Math.ceil(response.data.meta.total / 15); // As we return 15 items per page
 
 				// Update the query parameter with the current page
@@ -159,11 +159,16 @@ export default {
 				this.email = '';
 				this.website = '';
 				this.logo = '';
+				
 				this.fetchCompanies();
 				this.successMessages.push('Company added successfully');
 			} catch (error) {
+				if(error.response.data.message == 'Invalid URL') {
+					this.errors.push({ message: 'The URL is invalid or it is not an image URL.' });
+				} else {
+					this.errors = error.response.data.errors;
+				}
 				this.submitting = false;
-				this.errors = error.response.data.errors;
 			}
 		},
 	},
@@ -185,10 +190,12 @@ export default {
 		word-break: break-all;
 	}
 
-	.alert-position {
+	.alert-box {
 		position: absolute;
 		top: 0;
 		right: 0;
+		max-width: 450px;
+		word-break: break-all;
 	}
 
 	.position {

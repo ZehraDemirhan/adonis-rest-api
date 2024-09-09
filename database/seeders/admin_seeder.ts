@@ -1,12 +1,11 @@
-import { BaseSeeder } from '@adonisjs/lucid/seeders'
+import { BaseSeeder } from '@adonisjs/lucid/seeders';
+import { faker } from '@faker-js/faker';
+import { promisify } from 'util';
+import path from 'path';
+import fs from 'fs';
+import axios from 'axios';
 
-import { faker } from '@faker-js/faker'
-import path from 'path'
-import { promisify } from 'util'
-import fs from 'fs'
-import axios from 'axios'
-
-import User from '#models/user'
+import User from '#models/user';
 
 export default class extends BaseSeeder {
 	async run() {
@@ -24,6 +23,7 @@ export default class extends BaseSeeder {
 		// Define the file name and the path where the image will be saved
 		const fileName = `${faker.string.alphanumeric(10)}.jpg`
 		const writer = fs.createWriteStream(path.join(dirPath, fileName))
+
 		response.data.pipe(writer)
 
 		let email = faker.internet.email();
