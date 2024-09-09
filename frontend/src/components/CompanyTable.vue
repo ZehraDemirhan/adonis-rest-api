@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="position">
 		<div class="d-flex align-items-center justify-content-between">
 			<h2>Companies</h2>
 			<button
@@ -12,39 +12,25 @@
 			</button>
 		</div>
 
-		<div class="mb-3">
-			<input
-				type="text"
-				class="form-control"
-				placeholder="Search companies..."
-				v-model="searchQuery"
-				@input="filterCompanies"
-			/>
-		</div>
-
 		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
 					<th>Logo</th>
-					<th @click="sortTable('name')" style="cursor: pointer">
+					<th>
 						Name
-						<i v-if="sortKey === 'name'" :class="sortOrder === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'" class="sort-icon"></i>
-						<i v-else class="bi bi-caret-up-down sort-icon"></i>
 					</th>
-					<th @click="sortTable('email')" style="cursor: pointer">
+					<th >
 						Email
-						<i v-if="sortKey === 'email'" :class="sortOrder === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'" class="sort-icon"></i>
-						<i v-else class="bi bi-caret-up-down sort-icon"></i>
+
 					</th>
-					<th @click="sortTable('website')" style="cursor: pointer">
+					<th >
 						Website
-						<i v-if="sortKey === 'website'" :class="sortOrder === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'" class="sort-icon"></i>
-						<i v-else class="bi bi-caret-up-down sort-icon"></i>
+				
 					</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="company in filteredCompanies" :key="company.id">
+				<tr v-for="company in companies" :key="company.id">
 					<td>
 						<img :src="`http://localhost:3333/logos/${company.logo}`" alt="logo" class="round-logo" />
 					</td>
@@ -71,6 +57,19 @@
 			</nav>
 		</div>
 
+		<div v-if="errors.length > 0" id="alert" class="alert-position">
+			<div v-for="(error, index) in errors" :key="index" class="alert alert-danger alert-dismissible fade show" role="alert">
+				{{ error.message }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+		</div>
+		<div v-if="successMessages.length > 0" class="alert-position">
+			<div v-for="(message, index) in successMessages" :key="index" class="alert alert-success alert-dismissible fade show" role="alert">
+				{{ message }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+		</div>
+
 		<div class="modal fade" id="companyModal" tabindex="-1" aria-labelledby="companyModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
@@ -81,17 +80,22 @@
 					<div class="modal-body">
 						<form @submit.prevent="createCompany">
 							<div class="mb-3">
-								<label for="name" class="form-label">Name</label>
+								<label for="name" class="form-label">Name<span class="text-danger">*</span></label>
 								<input type="text" class="form-control" id="name" v-model="name" required />
 							</div>
 							<div class="mb-3">
-								<label for="email" class="form-label">Email</label>
+								<label for="email" class="form-label">Email <span class="text-danger">*</span></label>
 								<input type="email" class="form-control" id="email" v-model="email" required />
 							</div>
 							<div class="mb-3">
-								<label for="website" class="form-label">Website</label>
+								<label for="website" class="form-label">Website <span class="text-danger">*</span></label>
 								<input type="text" class="form-control" id="website" v-model="website" required />
 							</div>
+							<div class="mb-3">
+								<label for="logo" class="form-label">Logo Url <span class="text-danger">*</span></label>
+								<input type="text" class="form-control" id="logo" v-model="logo" required />
+							</div>
+							
 							<button type="submit" class="btn btn-success">Submit</button>
 						</form>
 					</div>
@@ -108,15 +112,14 @@ export default {
 	data() {
 		return {
 			companies: [],
-			filteredCompanies: [],
 			page: 1,
 			totalPages: 1,
 			name: '',
 			email: '',
 			website: '',
-			searchQuery: '',
-			sortKey: '',
-			sortOrder: 'asc',
+			errors: [],
+			successMessages: [],
+			logo: '',
 		};
 	},
 	mounted() {
@@ -129,57 +132,30 @@ export default {
 				this.companies = response.data.data;
 				this.page = page;
 				this.totalPages = Math.ceil(response.data.meta.total / 15); // As we return 15 items per page
-				this.filterCompanies();
 				console.log(this.companies);
 			} catch (error) {
 				console.error(error);
 			}
 		},
-		filterCompanies() {
-			const query = this.searchQuery.toLowerCase();
-			this.filteredCompanies = this.companies.filter((company) =>
-				company.name.toLowerCase().includes(query) ||
-				company.email.toLowerCase().includes(query) ||
-				company.website.toLowerCase().includes(query)
-			);
-			this.sortCompanies();
-		},
-		sortTable(key) {
-			if (this.sortKey === key) {
-				// Toggle sort order
-				this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-			} else {
-				// Set new sort key and default to ascending order
-				this.sortKey = key;
-				this.sortOrder = 'asc';
-			}
-			this.sortCompanies();
-		},
-		sortCompanies() {
-			this.filteredCompanies.sort((a, b) => {
-				let result = 0;
-				if (a[this.sortKey] < b[this.sortKey]) {
-					result = -1;
-				} else if (a[this.sortKey] > b[this.sortKey]) {
-					result = 1;
-				}
-				return this.sortOrder === 'asc' ? result : -result;
-			});
-		},
 		async createCompany() {
+			this.errors = [];
+			this.successMessages = [];
 			try {
 				const newCompany = {
 					name: this.name,
 					email: this.email,
 					website: this.website,
+					logo: this.logo,
 				};
 				await axios.post('http://localhost:3333/companies', newCompany);
 				this.name = '';
 				this.email = '';
 				this.website = '';
+				this.logo = '';
 				this.fetchCompanies();
+				this.successMessages.push('Company added successfully');
 			} catch (error) {
-				console.error(error);
+				this.errors = error.response.data.errors;
 			}
 		},
 	},
@@ -196,11 +172,18 @@ export default {
 		border-radius: 50%;
 	}
 
-	th:hover .sort-icon {
-		display: inline;
-	}
-
 	td {
 		vertical-align: middle;
+		word-break: break-all;
+	}
+
+	.alert-position {
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+
+	.position {
+		position: relative;
 	}
 </style>

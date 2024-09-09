@@ -1,10 +1,11 @@
 <template>
-	<div>
+	<div class="position">
 		<div class="d-flex align-items-center justify-content-between">
 			<h2>Employees</h2>
 			<button
+				@click="isEditMode = false; clearForm()"
 				type="button"
-				class="btn btn-primary float-end mb-3"
+				class="btn btn-primary float-end"
 				data-bs-toggle="modal"
 				data-bs-target="#employeeModal"
 			>
@@ -12,59 +13,49 @@
 			</button>
 		</div>
 
-		<div class="mb-3">
-			<input
-				type="text"
-				class="form-control"
-				placeholder="Search employees..."
-				v-model="searchQuery"
-				@input="filterEmployees"
-			/>
-		</div>
-
 		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
-					<th @click="sortTable('firstName')" style="cursor: pointer">
+					<th>
 						First Name
-						<i v-if="sortKey === 'firstName'" :class="sortOrder === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'" class="sort-icon"></i>
-						<i v-else class="bi bi-caret-up-down sort-icon"></i>
 					</th>
-					<th @click="sortTable('lastName')" style="cursor: pointer">
+					<th>
 						Last Name
-						<i v-if="sortKey === 'lastName'" :class="sortOrder === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'" class="sort-icon"></i>
-						<i v-else class="bi bi-caret-up-down sort-icon"></i>
 					</th>
-					<th @click="sortTable('email')" style="cursor: pointer">
+					<th>
 						Email
-						<i v-if="sortKey === 'email'" :class="sortOrder === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'" class="sort-icon"></i>
-						<i v-else class="bi bi-caret-up-down sort-icon"></i>
 					</th>
-					<th @click="sortTable('companyId')" style="cursor: pointer">
+					<th>
 						Company
-						<i v-if="sortKey === 'companyId'" :class="sortOrder === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'" class="sort-icon"></i>
-						<i v-else class="bi bi-caret-up-down sort-icon"></i>
 					</th>
-					<th @click="sortTable('phone')" style="cursor: pointer">
+					<th>
 						Phone
-						<i v-if="sortKey === 'phone'" :class="sortOrder === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'" class="sort-icon"></i>
-						<i v-else class="bi bi-caret-up-down sort-icon"></i>
 					</th>
-					<th @click="sortTable('createdAt')" style="cursor: pointer">
+					<th>
 						Joined
-						<i v-if="sortKey === 'createdAt'" :class="sortOrder === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'" class="sort-icon"></i>
-						<i v-else class="bi bi-caret-up-down sort-icon"></i>
 					</th>
+					<th>Actions</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="employee in filteredEmployees" :key="employee.id">
-					<td>{{ employee.firstName }}</td>
-					<td>{{ employee.lastName }}</td>
+				<tr v-for="employee in employees" :key="employee.id">
+					<td>{{ employee.first_name }}</td>
+					<td>{{ employee.last_name }}</td>
 					<td>{{ employee.email }}</td>
-					<td>{{ employee.companyId }}</td>
+					<td>{{employee.company_name}}</td>
 					<td>{{ employee.phone }}</td>
-					<td>{{ formatDate(employee.createdAt) }}</td>
+					<td>{{ formatDate(employee.created_at) }}</td>
+					<td class="actions-td">
+						<button @click="isEditMode = true; setEmployeeData(employee)"
+							class="btn btn-sm btn-warning text-white ms-1"
+							data-bs-toggle="modal"
+							data-bs-target="#employeeModal">
+							<i class="bi bi-pencil-square"></i>
+						</button>
+						<button @click="deleteEmployee(employee.id)" class="btn btn-sm btn-danger ms-2">
+							<i class="bi bi-trash"></i>
+						</button>
+					</td>
 				</tr>
 			</tbody>
 		</table>
@@ -85,51 +76,116 @@
 			</nav>
 		</div>
 
+		<div v-if="errors.length > 0" id="alert" class="alert-position">
+			<div v-for="(error, index) in errors" :key="index" class="alert alert-danger alert-dismissible fade show" role="alert">
+				{{ error.message }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+		</div>
+		<div v-if="successMessages.length > 0" class="alert-position">
+			<div v-for="(message, index) in successMessages" :key="index" class="alert alert-success alert-dismissible fade show" role="alert">
+				{{ message.message }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+		</div>
+
 		<div class="modal fade" id="employeeModal" tabindex="-1" aria-labelledby="employeeModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title" id="employeeModalLabel">Add New Employee</h5>
+						<h5 class="modal-title" id="employeeModalLabel">{{isEditMode ? 'Edit Employee' : 'Add New Employee'}}</h5>
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
 					<div class="modal-body">
-						<form @submit.prevent="createEmployee">
+						<form @submit.prevent="takeEmployeeAction">
 							<div class="mb-3">
-								<label for="name" class="form-label">Name</label>
-								<input type="text" class="form-control" id="name" v-model="name" required />
+								<label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+								<input
+									type="text"
+									class="form-control"
+									id="firstName"
+									v-model="firstName"
+									required
+								/>
 							</div>
 							<div class="mb-3">
-								<label for="email" class="form-label">Email</label>
-								<input type="email" class="form-control" id="email" v-model="email" required />
+								<label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+								<input
+									type="text"
+									class="form-control"
+									id="lastName"
+									v-model="lastName"
+									required
+								/>
+							</div>
+							<div class="mb-3">
+								<label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+								<input
+									type="email"
+									class="form-control"
+									id="email"
+									v-model="email"
+									required
+								/>
+							</div>
+							<div class="mb-3">
+								<label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
+								<input
+									type="tel"
+									class="form-control"
+									id="phone"
+									v-model="phone"
+									required
+								/>
+							</div>
+							<div class="mb-3">
+								<label for="company" class="form-label">Company <span class="text-danger">*</span></label>
+								<select
+									class="form-select"
+									id="company"
+									v-model="companyId"
+									required
+								>
+									<option value="" disabled>Select a company</option>
+									<option v-for="company in allCompanies" :key="company.id" :value="company.id">
+										{{ company.name }}
+									</option>
+								</select>
 							</div>
 							<button type="submit" class="btn btn-success">Submit</button>
 						</form>
 					</div>
 				</div>
 			</div>
-		</div>
+		</div>		
 	</div>
 </template>
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default {
 	data() {
 		return {
 			employees: [],
-			filteredEmployees: [],
+			firstName: '',
+			lastName: '',
+			email: '',
+			phone: '',
+			companyId: '',
 			page: 1,
 			totalPages: 1,
-			name: '',
-			email: '',
-			searchQuery: '',
-			sortKey: '',
-			sortOrder: 'asc',
+			allCompanies: [],
+			isEditMode: false,
+			employeeId: null,
+			errors: [],
+			successMessages: [],
 		};
 	},
 	mounted() {
 		this.fetchEmployees();
+		this.getAllCompanies();
 	},
 	methods: {
 		async fetchEmployees(page = 1) {
@@ -137,68 +193,146 @@ export default {
 				const response = await axios.get(`http://localhost:3333/employees?page=${page}`);
 				this.employees = response.data.data;
 				this.page = page;
-				this.totalPages = Math.ceil(response.data.meta.total / 15); // As we return 15 items per page
-				this.filterEmployees();
+				this.totalPages = Math.ceil(response.data.meta.total / 15);
+				console.log(this.employees);
 			} catch (error) {
 				console.error(error);
 			}
 		},
-		filterEmployees() {
-			const query = this.searchQuery.toLowerCase();
-			this.filteredEmployees = this.employees.filter((employee) =>
-				employee.firstName.toLowerCase().includes(query) ||
-				employee.lastName.toLowerCase().includes(query) ||
-				employee.email.toLowerCase().includes(query) ||
-				employee.phone.toLowerCase().includes(query)
-			);
-			this.sortEmployees();
+		async getAllCompanies() {
+			try {
+				const response = await axios.get('http://localhost:3333/companies');
+				console.log(response);
+				this.allCompanies = response.data;
+				console.log(this.allCompanies);
+			} catch (error) {
+				console.error("Error fetching companies:", error);
+			}	
 		},
-		sortTable(key) {
-			if (this.sortKey === key) {
-				// Toggle sort order
-				this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-			} else {
-				// Set new sort key and default to ascending order
-				this.sortKey = key;
-				this.sortOrder = 'asc';
-			}
-			this.sortEmployees();
-		},
-		sortEmployees() {
-			this.filteredEmployees.sort((a, b) => {
-				let result = 0;
-				if (a[this.sortKey] < b[this.sortKey]) {
-					result = -1;
-				} else if (a[this.sortKey] > b[this.sortKey]) {
-					result = 1;
+		async deleteEmployee(id) {
+			try {
+				const result = await Swal.fire({
+					title: 'Are you sure?',
+					text: 'You will not be able to recover this employee!',
+					icon: 'warning',
+					showCancelButton: true,
+					confirmButtonText: 'Yes',
+					cancelButtonText: 'No',
+				});
+
+				if (result.isConfirmed) {
+					await axios.delete(`http://localhost:3333/employees/${id}`);
+					this.fetchEmployees();
+					Swal.fire('Deleted!', 'Employee has been deleted.', 'success');
 				}
-				return this.sortOrder === 'asc' ? result : -result;
-			});
+			} catch (error) {
+				console.error("Error deleting employee:", error);
+			}
+			
+		},
+		setEmployeeData(employee) {
+			this.firstName = employee.firstName;
+			this.lastName = employee.lastName;
+			this.email = employee.email;
+			this.phone = employee.phone;
+			this.companyId = employee.companyId;
+			this.employeeId = employee.id;
 		},
 		formatDate(dateString) {
-			const options = { year: 'numeric', month: 'long', day: 'numeric' };
-			return new Date(dateString).toLocaleDateString(undefined, options);
+			const date = new Date(dateString);
+			return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+		},
+		takeEmployeeAction() {
+			this.errors = [];
+			this.successMessages = [];
+			if (this.isEditMode) {
+				this.updateEmployee();
+			} else {
+				this.createEmployee();
+			}
+		},
+		async updateEmployee() {
+			console.log(this.companyId);
+			try {
+				const employeeData = {
+					first_name: this.firstName,
+					last_name: this.lastName,
+					email: this.email,
+					phone: this.phone,
+					company_id: this.companyId,
+				};
+
+				await axios.put(`http://localhost:3333/employees/${this.employeeId}`, employeeData);
+				// Update the current employee in the employees array
+				console.log(this.employees);
+				const employeeIndex = this.employees.findIndex(employee => employee.id === this.employeeId);
+				console.log(employeeIndex);
+				if (employeeIndex !== -1) {
+					this.employees[employeeIndex] = {
+						...this.employees[employeeIndex],
+						firstName: this.firstName,
+						lastName: this.lastName,
+						email: this.email,
+						phone: this.phone,
+						companyId: this.companyId,
+					};
+				}
+				console.log(this.employees);
+				this.clearForm();
+				this.successMessages = [{ message: 'Employee updated successfully' }];
+				console.log(this.successMessages);
+			} catch (error) {
+				this.errors = error.response.data.errors;
+				console.error("Error updating employee:", error);
+			}
 		},
 		async createEmployee() {
 			try {
-				const newEmployee = {
-					name: this.name,
+				const employeeData = {
+					first_name: this.firstName,
+					last_name: this.lastName,
 					email: this.email,
+					phone: this.phone,
+					company_id: this.companyId,
 				};
-				await axios.post('http://localhost:3333/employees', newEmployee);
-				this.name = '';
-				this.email = '';
+
+				console.log(employeeData);
+				await axios.post('http://localhost:3333/employees', employeeData);
 				this.fetchEmployees();
+				this.clearForm();
+				this.successMessages = [{ message: 'Employee created successfully' }];
 			} catch (error) {
-				console.error(error);
+				this.errors = error.response.data.errors;
+				console.error("Error creating employee:", error);
 			}
 		},
-	},
+		clearForm() {
+			this.firstName = '';
+			this.lastName = '';
+			this.email = '';
+			this.phone = '';
+			this.companyId = '';
+		}
+	}
 };
 </script>
 
-<style scoped>
-.float-end {
-	float: right;
+<style>
+.actions-td {
+	width: 100px;
+}
+
+td {
+	vertical-align: middle;
+}
+
+.alert-position {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+.position {
+	position: relative;
 }
 </style>
