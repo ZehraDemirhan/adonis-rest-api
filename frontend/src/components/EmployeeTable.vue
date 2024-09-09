@@ -42,7 +42,7 @@
 					<td>{{ employee.first_name }}</td>
 					<td>{{ employee.last_name }}</td>
 					<td>{{ employee.email }}</td>
-					<td>{{employee.company_name}}</td>
+					<td>{{ employee.company_name }}</td>
 					<td>{{ employee.phone }}</td>
 					<td>{{ formatDate(employee.created_at) }}</td>
 					<td class="actions-td">
@@ -103,8 +103,8 @@
 								<input
 									type="text"
 									class="form-control"
-									id="firstName"
-									v-model="firstName"
+									id="first_name"
+									v-model="first_name"
 									required
 								/>
 							</div>
@@ -113,8 +113,8 @@
 								<input
 									type="text"
 									class="form-control"
-									id="lastName"
-									v-model="lastName"
+									id="last_name"
+									v-model="last_name"
 									required
 								/>
 							</div>
@@ -162,15 +162,15 @@
 </template>
 
 <script>
-import axios from 'axios';
 import Swal from 'sweetalert2';
+import { HttpClientAuth } from '@/utils/httpClient'
 
 export default {
 	data() {
 		return {
 			employees: [],
-			firstName: '',
-			lastName: '',
+			first_name: '',
+			last_name: '',
 			email: '',
 			phone: '',
 			companyId: '',
@@ -184,27 +184,30 @@ export default {
 		};
 	},
 	mounted() {
+		this.page = parseInt(this.$route.query.page, 10) || 1;
 		this.fetchEmployees();
 		this.getAllCompanies();
 	},
 	methods: {
-		async fetchEmployees(page = 1) {
+		async fetchEmployees(page = this.page) {
 			try {
-				const response = await axios.get(`http://localhost:3333/employees?page=${page}`);
+				const response = await HttpClientAuth.get(`http://localhost:3333/employees?page=${page}`);
 				this.employees = response.data.data;
 				this.page = page;
 				this.totalPages = Math.ceil(response.data.meta.total / 15);
-				console.log(this.employees);
+
+				// Update the query parameter with the current page
+				this.$router.push({ path: '/employees', query: { page } });
 			} catch (error) {
 				console.error(error);
 			}
 		},
 		async getAllCompanies() {
 			try {
-				const response = await axios.get('http://localhost:3333/companies');
-				console.log(response);
+				const response = await HttpClientAuth.get('http://localhost:3333/companies');
+
 				this.allCompanies = response.data;
-				console.log(this.allCompanies);
+
 			} catch (error) {
 				console.error("Error fetching companies:", error);
 			}	
@@ -221,7 +224,7 @@ export default {
 				});
 
 				if (result.isConfirmed) {
-					await axios.delete(`http://localhost:3333/employees/${id}`);
+					await Http.delete(`http://localhost:3333/employees/${id}`);
 					this.fetchEmployees();
 					Swal.fire('Deleted!', 'Employee has been deleted.', 'success');
 				}
@@ -231,11 +234,11 @@ export default {
 			
 		},
 		setEmployeeData(employee) {
-			this.firstName = employee.firstName;
-			this.lastName = employee.lastName;
+			this.first_name = employee.first_name;
+			this.last_name = employee.last_name;
 			this.email = employee.email;
 			this.phone = employee.phone;
-			this.companyId = employee.companyId;
+			this.companyId = employee.company_id;
 			this.employeeId = employee.id;
 		},
 		formatDate(dateString) {
@@ -252,35 +255,32 @@ export default {
 			}
 		},
 		async updateEmployee() {
-			console.log(this.companyId);
 			try {
 				const employeeData = {
-					first_name: this.firstName,
-					last_name: this.lastName,
+					first_name: this.first_name,
+					last_name: this.last_name,
 					email: this.email,
 					phone: this.phone,
 					company_id: this.companyId,
 				};
 
-				await axios.put(`http://localhost:3333/employees/${this.employeeId}`, employeeData);
+				await HttpClientAuth.put(`http://localhost:3333/employees/${this.employeeId}`, employeeData);
 				// Update the current employee in the employees array
-				console.log(this.employees);
 				const employeeIndex = this.employees.findIndex(employee => employee.id === this.employeeId);
-				console.log(employeeIndex);
 				if (employeeIndex !== -1) {
 					this.employees[employeeIndex] = {
 						...this.employees[employeeIndex],
-						firstName: this.firstName,
-						lastName: this.lastName,
+						first_name: this.first_name,
+						last_name: this.last_name,
 						email: this.email,
 						phone: this.phone,
 						companyId: this.companyId,
+						company_name : this.allCompanies.find(company => company.id === this.companyId).name,
+	
 					};
 				}
-				console.log(this.employees);
 				this.clearForm();
 				this.successMessages = [{ message: 'Employee updated successfully' }];
-				console.log(this.successMessages);
 			} catch (error) {
 				this.errors = error.response.data.errors;
 				console.error("Error updating employee:", error);
@@ -289,15 +289,14 @@ export default {
 		async createEmployee() {
 			try {
 				const employeeData = {
-					first_name: this.firstName,
-					last_name: this.lastName,
+					first_name: this.first_name,
+					last_name: this.last_name,
 					email: this.email,
 					phone: this.phone,
 					company_id: this.companyId,
 				};
 
-				console.log(employeeData);
-				await axios.post('http://localhost:3333/employees', employeeData);
+				await HttpClientAuth.post('/employees', employeeData);
 				this.fetchEmployees();
 				this.clearForm();
 				this.successMessages = [{ message: 'Employee created successfully' }];
@@ -307,8 +306,8 @@ export default {
 			}
 		},
 		clearForm() {
-			this.firstName = '';
-			this.lastName = '';
+			this.first_name = '';
+			this.last_name = '';
 			this.email = '';
 			this.phone = '';
 			this.companyId = '';

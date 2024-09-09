@@ -1,13 +1,17 @@
 <script>
-	import axios from 'axios';
-	
 	import CompanyTable from '@/components/CompanyTable.vue';
 	import EmployeeTable from '@/components/EmployeeTable.vue';
+
+	import AuthService from '../services/auth_service';
+
+	import { HttpClientAuth } from '@/utils/httpClient'
+
+	const authService = new AuthService('http://localhost:3333');
 
 	export default {
 		data() {
 			return {
-				view: 'companies',
+				view: this.$route.path.split('/')[1].trim(),
 				admin: null,
 			};
 		},
@@ -21,12 +25,16 @@
 		methods: {
 			async fetchAdminData() {
 				try {
-					const response = await axios.get('http://localhost:3333/users/admins');
+					const response = await HttpClientAuth.get('http://localhost:3333/users/admins');
 					// Right now we only have one admin user
 					this.admin = response.data[0];
 				} catch (error) {
 					console.error('Failed to fetch admin data:', error);
 				}
+			},
+			logout() {
+				authService.logout();
+				this.$router.push('/login');
 			},
 		},
 	};
@@ -43,16 +51,16 @@
 			</div>
 			<ul class="nav flex-column p-3 custom-height">
 				<li class="nav-item mb-3 list-item-hover" :class="{'active-item': view == 'companies'}">
-					<a class="nav-link d-flex align-items-center text-white" @click="view = 'companies'">
+					<router-link class="nav-link d-flex align-items-center text-white" @click="view = 'companies'" to="/companies">
 						<i class="bi bi-building me-2"></i>
 						<span>Company Table</span>
-					</a>
+					</router-link>
 				</li>
 				<li class="nav-item mb-3 list-item-hover" :class="{'active-item': view == 'employees'}">
-					<a class="nav-link d-flex align-items-center text-white" @click="view = 'employees'">
+					<router-link class="nav-link d-flex align-items-center text-white" @click="view = 'employees'" to="/employees">
 						<i class="bi bi-people-fill me-2"></i>
 						<span>Employee Table</span>
-					</a>
+					</router-link>
 				</li>
 				<li class="nav-item mt-auto list-item-hover">
 					<a class="nav-link d-flex align-items-center text-white" @click="logout">
@@ -63,14 +71,8 @@
 			</ul>
 		</div>
 
-		<!-- Main content -->
 		<div class="content p-4 w-100 overflow-x">
-			<div v-if="view === 'companies'">
-				<CompanyTable />
-			</div>
-			<div v-if="view === 'employees'">
-				<EmployeeTable />
-			</div>
+			<router-view/>
 		</div>
 	</div>
 </template>

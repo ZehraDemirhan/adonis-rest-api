@@ -1,5 +1,4 @@
 <script>
-import axios from 'axios';
 import Home from '@/views/Home.vue';
 import Login from '@/views/Login.vue';
 
@@ -17,7 +16,7 @@ export default {
 </script>
 
 <template>
-		<Home />
+		<router-view />
 </template>
 
 <style scoped>

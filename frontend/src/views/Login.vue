@@ -33,7 +33,10 @@
 </template>
 
 <script>
-import axios from 'axios';
+import AuthService from '../services/auth_service';
+
+const authService = new AuthService('http://localhost:3333');
+
 
 export default {
 	data() {
@@ -46,22 +49,16 @@ export default {
 	methods: {
 		async handleLogin() {
 			try {
-				const response = await axios.post('http://localhost:3333/users/login', {
-					email: this.email,
-					password: this.password
-				});
-				
-				console.log(response.data)
-				const token = response.data.accessToken;
+				const response = await authService.login(this.email, this.password);
 
-				// Store the access token in cookies (expires in 1 hour)
-				Cookies.set('accessToken', token, { expires: 1 / 24 });
-
-				// Redirect to a protected route
-				this.$router.push('/dashboard');
+				if (response) {
+					localStorage.setItem('user', JSON.stringify(response));
+					this.$router.push('/companies');
+				}
 			} catch (error) {
-				this.errorMessage = 'Invalid email or password';
+				this.errorMessage = error.errors[0].message;
 			}
+			
 		}
 	}
 };

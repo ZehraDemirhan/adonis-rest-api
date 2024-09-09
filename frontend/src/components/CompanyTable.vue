@@ -106,7 +106,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { HttpClientAuth } from '@/utils/httpClient';
 
 export default {
 	data() {
@@ -123,16 +123,20 @@ export default {
 		};
 	},
 	mounted() {
+		this.page = parseInt(this.$route.query.page, 10) || 1;
 		this.fetchCompanies();
 	},
 	methods: {
-		async fetchCompanies(page = 1) {
+		async fetchCompanies(page = this.page) {
 			try {
-				const response = await axios.get(`http://localhost:3333/companies?page=${page}`);
+				console.log("page", page);
+				const response = await HttpClientAuth.get(`http://localhost:3333/companies?page=${page}`);
 				this.companies = response.data.data;
 				this.page = page;
 				this.totalPages = Math.ceil(response.data.meta.total / 15); // As we return 15 items per page
 				console.log(this.companies);
+				// Update the query parameter with the current page
+				this.$router.push({ path: '/companies', query: { page } });
 			} catch (error) {
 				console.error(error);
 			}
@@ -147,7 +151,7 @@ export default {
 					website: this.website,
 					logo: this.logo,
 				};
-				await axios.post('http://localhost:3333/companies', newCompany);
+				await HttpClientAuth.post('http://localhost:3333/companies', newCompany);
 				this.name = '';
 				this.email = '';
 				this.website = '';
