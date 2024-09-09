@@ -18,8 +18,16 @@ This project is a full-stack web application that demonstrates an employee and c
 - **Avatar Generation**: An avatar for the admin is created using an API based on the admin's initials.
 
 ## Project Setup Instructions
-
 1. **Navigate to the root directory of the project**.
+2. **Install Vue.js and AdonisJS**:
+   - Install Vue.js globally (if not already installed):
+     ```bash
+     npm install -g @vue/cli
+     ```
+   - Install AdonisJS CLI globally (if not already installed):
+     ```bash
+     npm install -g @adonisjs/cli
+     ```
 2. **Run the following command**:
  `npm install`
   
