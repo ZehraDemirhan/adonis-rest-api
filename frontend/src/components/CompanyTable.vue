@@ -96,7 +96,7 @@
 								<input type="text" class="form-control" id="logo" v-model="logo" required />
 							</div>
 							
-							<button type="submit" class="btn btn-success">Submit</button>
+							<button type="submit" class="btn btn-success" :class="{ disabled: !submitting }">Submit</button>
 						</form>
 					</div>
 				</div>
@@ -120,6 +120,7 @@ export default {
 			errors: [],
 			successMessages: [],
 			logo: '',
+			submitting: false,
 		};
 	},
 	mounted() {
@@ -144,6 +145,7 @@ export default {
 		async createCompany() {
 			this.errors = [];
 			this.successMessages = [];
+			this.submitting = true;
 			try {
 				const newCompany = {
 					name: this.name,
@@ -152,6 +154,7 @@ export default {
 					logo: this.logo,
 				};
 				await HttpClientAuth.post('http://localhost:3333/companies', newCompany);
+				this.submitting = false;
 				this.name = '';
 				this.email = '';
 				this.website = '';
@@ -159,6 +162,7 @@ export default {
 				this.fetchCompanies();
 				this.successMessages.push('Company added successfully');
 			} catch (error) {
+				this.submitting = false;
 				this.errors = error.response.data.errors;
 			}
 		},

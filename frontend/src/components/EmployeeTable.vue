@@ -152,7 +152,7 @@
 									</option>
 								</select>
 							</div>
-							<button type="submit" class="btn btn-success">Submit</button>
+							<button type="submit" class="btn btn-success" :class="{ disabled: submitting }">Submit</button>
 						</form>
 					</div>
 				</div>
@@ -181,6 +181,7 @@ export default {
 			employeeId: null,
 			errors: [],
 			successMessages: [],
+			submitting: false,
 		};
 	},
 	mounted() {
@@ -255,6 +256,7 @@ export default {
 			}
 		},
 		async updateEmployee() {
+			this.submitting = true;
 			try {
 				const employeeData = {
 					first_name: this.first_name,
@@ -265,8 +267,11 @@ export default {
 				};
 
 				await HttpClientAuth.put(`http://localhost:3333/employees/${this.employeeId}`, employeeData);
+				this.submitting = false;
+
 				// Update the current employee in the employees array
 				const employeeIndex = this.employees.findIndex(employee => employee.id === this.employeeId);
+
 				if (employeeIndex !== -1) {
 					this.employees[employeeIndex] = {
 						...this.employees[employeeIndex],
@@ -282,11 +287,13 @@ export default {
 				this.clearForm();
 				this.successMessages = [{ message: 'Employee updated successfully' }];
 			} catch (error) {
+				this.submitting = false;
 				this.errors = error.response.data.errors;
 				console.error("Error updating employee:", error);
 			}
 		},
 		async createEmployee() {
+			this.submitting = true;
 			try {
 				const employeeData = {
 					first_name: this.first_name,
@@ -297,10 +304,12 @@ export default {
 				};
 
 				await HttpClientAuth.post('/employees', employeeData);
+				this.submitting = false;
 				this.fetchEmployees();
 				this.clearForm();
 				this.successMessages = [{ message: 'Employee created successfully' }];
 			} catch (error) {
+				this.submitting = false;
 				this.errors = error.response.data.errors;
 				console.error("Error creating employee:", error);
 			}
