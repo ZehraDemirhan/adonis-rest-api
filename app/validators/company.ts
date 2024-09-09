@@ -5,7 +5,7 @@ import vine from '@vinejs/vine'
  */
 export const createCompanyValidator = vine.compile(
 	vine.object({
-		name: vine.string().trim().minLength(3),
+		name: vine.string().trim().minLength(3).maxLength(20),
 		email: vine.string().trim().email(),
 		logo: vine.string().trim().minLength(3),
 		website: vine.string().trim().minLength(3),
@@ -17,7 +17,7 @@ export const createCompanyValidator = vine.compile(
  */
 export const updateCompanyValidator = vine.compile(
 	vine.object({
-		name: vine.string().trim().minLength(3),
+		name: vine.string().trim().minLength(3).maxLength(20),
 		email: vine.string().trim().email(),
 		logo: vine.string().trim().minLength(3),
 		website: vine.string().trim().minLength(3),
