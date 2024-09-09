@@ -15,6 +15,7 @@ This project is a full-stack web application that demonstrates an employee and c
 - **Frontend HTTP Client**: The frontend uses a dedicated HTTP client for making authenticated requests. A second unauthenticated HTTP client is also set up, but currently unused.
 - **Vue Router**: For navigation, Vue Router is used in the frontend.
 - **UI Enhancements**: Third-party libraries like Bootstrap and SweetAlert2 are utilized for a better user interface experience.
+- **Avatar Generation**: An avatar for the admin is created using an API based on the admin's initials.
 
 ## Project Setup Instructions
 
@@ -30,3 +31,8 @@ This project is a full-stack web application that demonstrates an employee and c
     
 5. **Run the frontend development server**:
     `npm run dev`
+
+   <img width="1438" alt="Screenshot 2024-09-10 at 00 27 23" src="https://github.com/user-attachments/assets/dab6ff8a-fbe5-43f4-bf44-770235325185">
+   <img width="1439" alt="Screenshot 2024-09-10 at 00 28 12" src="https://github.com/user-attachments/assets/5b64ec4b-64b0-42a7-92a4-c83f44ed197c">
+  <img width="1434" alt="Screenshot 2024-09-10 at 00 30 21" src="https://github.com/user-attachments/assets/4cb2faee-59e9-4500-b6c3-a1beecd49137">
+
