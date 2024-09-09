@@ -26,12 +26,20 @@ export default class extends BaseSeeder {
 		const writer = fs.createWriteStream(path.join(dirPath, fileName))
 		response.data.pipe(writer)
 
+		let email = faker.internet.email();
+		let password = faker.internet.password();
 
+		// This is a dummy admin account. The credentials will be displayed in the console.
+		console.log('PLEASE USE THESE CREDENTIALS TO LOGIN TO THE ADMIN ACCOUNT');
+		console.log('Admin Account Credentials:');
+		console.log('Email: ' + email);
+		console.log('Password: ' + password);
+	
 		await User.create(
 			{
 				fullName: fullName,
-				email: faker.internet.email(),
-				password: faker.internet.password(),
+				email: email,
+				password: password,
 				is_admin: true,
 				profile_picture: `${fileName}`,
 			},
