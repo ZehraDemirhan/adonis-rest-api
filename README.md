@@ -5,6 +5,7 @@ This project is a full-stack web application that demonstrates an employee and c
 ## Features
 - **Logos**: 50 images related to companies will be fetched from LoremPicsum and saved to the public directory. These images will be served by the server to the frontend using static middleware provided by AdonisJS.
 - **Database Seeding**: On first run, the database will be seeded with 50 companies and 300 employees for testing and demonstration.
+- **Avatar Generation**: An avatar for the admin is created using an API based on the admin's initials.
 - **Authentication with Access Tokens**: The application uses access tokens for authentication. Tokens are stored in session storage, and the app intercepts HTTP requests to handle unauthorized access.
 - **User Login**: Users should retrieve credentials from the backend console and use them to log in. When the admin seeder is run, credentials will be written on the console for testing purposes.
 - **Company and Employee Management**: 
@@ -13,10 +14,9 @@ This project is a full-stack web application that demonstrates an employee and c
 - **Authorization Protection**: All routes are protected by authentication middleware, except for the login and registration endpoints (note: registration is currently unused).
 - **Lucid ORM**: The backend uses Lucid ORM to interact with the database, returning serialized data for various endpoints.
 - **Controller-Service-Repository Pattern**: The backend follows a layered architecture with controller, service, and repository layers, ensuring clean separation of concerns.
-- **Frontend HTTP Client**: The frontend uses a dedicated HTTP client for making authenticated requests. A second unauthenticated HTTP client is also set up, but currently unused.
-- **Vue Router**: For navigation, Vue Router is used in the frontend.
+- **Frontend HTTP Client**: The frontend uses a dedicated HTTP client to make authenticated requests. A second unauthenticated HTTP client is also set up, but currently unused.
+- **Vue Router**: For navigation, the Vue Router is used on the front end.
 - **UI Enhancements**: Third-party libraries like Bootstrap and SweetAlert2 are utilized for a better user interface experience.
-- **Avatar Generation**: An avatar for the admin is created using an API based on the admin's initials.
 
 ## Project Setup Instructions
 1. **Navigate to the root directory of the project**.
@@ -41,7 +41,9 @@ This project is a full-stack web application that demonstrates an employee and c
 5. **Run the frontend development server**:
     `npm run dev`
 
-   <img width="1438" alt="Screenshot 2024-09-10 at 00 27 23" src="https://github.com/user-attachments/assets/dab6ff8a-fbe5-43f4-bf44-770235325185">
+   <img width="1439" alt="Screenshot 2024-09-10 at 00 27 23" src="https://github.com/user-attachments/assets/dab6ff8a-fbe5-43f4-bf44-770235325185">
    <img width="1439" alt="Screenshot 2024-09-10 at 00 28 12" src="https://github.com/user-attachments/assets/5b64ec4b-64b0-42a7-92a4-c83f44ed197c">
-  <img width="1434" alt="Screenshot 2024-09-10 at 00 30 21" src="https://github.com/user-attachments/assets/4cb2faee-59e9-4500-b6c3-a1beecd49137">
+    <img width="1439" alt="Screenshot 2024-09-10 at 03 40 01" src="https://github.com/user-attachments/assets/f41a776f-d3eb-48ca-ac08-cb8a15c0cd40">
+  <img width="1439" alt="Screenshot 2024-09-10 at 00 30 21" src="https://github.com/user-attachments/assets/4cb2faee-59e9-4500-b6c3-a1beecd49137">
+
 
