@@ -225,7 +225,7 @@ export default {
 				});
 
 				if (result.isConfirmed) {
-					await Http.delete(`/employees/${id}`);
+					await HttpClientAuth.delete(`/employees/${id}`);
 					this.fetchEmployees();
 					Swal.fire('Deleted!', 'Employee has been deleted.', 'success');
 				}
